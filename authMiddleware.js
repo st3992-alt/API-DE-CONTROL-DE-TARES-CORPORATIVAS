@@ -1,53 +1,29 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const authMiddleware = (req, res, next) => {
-    // Obtener Authorization de los headers
-    const authorization = req.headers.authorization;
-
-    // Comprobar que se envió el encabezado
-    if (!authorization) {
-        return res.status(401).json({
-            message: 'Token requerido'
-        });
-    }
-
-    // Comprobar el formato Bearer
-    if (!authorization.startsWith('Bearer ')) {
-        return res.status(401).json({
-            message: 'Formato de token incorrecto'
-        });
-    }
-
-    // Extraer solamente el JWT
-    const token = authorization.substring(7).trim();
+const verificarAppToken = (req, res, next) => {
+    const token = req.header("app-token");
 
     if (!token) {
         return res.status(401).json({
-            message: 'Token requerido'
+            mensaje: "Acceso denegado. El header app-token es requerido."
+        });
+    }
+
+    if (token !== process.env.APP_TOKEN) {
+        return res.status(401).json({
+            mensaje: "Acceso denegado. App-token incorrecto."
         });
     }
 
     try {
-        // Verificar el JWT usando la clave secreta
-        const decoded = jwt.verify(
-            token,
-            process.env.APP_TOKEN,
-            {
-                algorithms: ['HS256']
-            }
-        );
-
-        // Guardar la información decodificada
-        req.tokenData = decoded;
-
+        const verificado = jwt.verify(token, process.env.JWT_SECRET);
+        req.aplicacion = verificado;
         next();
-
     } catch (error) {
         return res.status(401).json({
-            message: 'Token inválido',
-            error: error.message
+            mensaje: "Acceso denegado. JWT inválido."
         });
     }
 };
 
-module.exports = authMiddleware;
+module.exports = verificarAppToken;
