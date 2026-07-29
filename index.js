@@ -11,6 +11,7 @@ const authMiddleware = require('./authMiddleware');
 const userRoutes = require('./ROUTES/user.routes');
 const taskRoutes = require('./ROUTES/task.routes');
 const roleRoutes = require('./ROUTES/role.routes');
+const authRoutes = require('./ROUTES/auth.routes');
 
 const app = express();
 
@@ -21,6 +22,9 @@ connectDB();
 app.use(helmet());
 app.use(express.json());
 
+// Todas las rutas colocadas después de este middleware requieren app-token
+app.use(authMiddleware);
+
 // Ruta principal pública
 app.get('/', (req, res) => {
     return res.status(200).json({
@@ -28,13 +32,12 @@ app.get('/', (req, res) => {
     });
 });
 
-// Todas las rutas colocadas después de este middleware requieren app-token
-app.use(authMiddleware);
 
 // Rutas protegidas
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/auth', authRoutes);
 
 // Middleware para rutas inexistentes
 app.use((req, res) => {

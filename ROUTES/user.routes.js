@@ -9,10 +9,47 @@ const {
     deleteUser
 } = require("../CONTROLLERS/user.controllers");
 
-router.post("/", createUser);
-router.get("/", getUsers);
-router.get("/:id", getUserById);
-router.put("/:id", updateUser);
-router.delete("/:id", deleteUser);
+const authenticateUser = require(
+    "../userAuthMiddleware"
+);
+
+const checkRole = require(
+    "../roleMiddleware"
+);
+
+router.post(
+    "/",
+    authenticateUser,
+    checkRole("Admin"),
+    createUser
+);
+
+router.get(
+    "/",
+    authenticateUser,
+    checkRole("Admin"),
+    getUsers
+);
+
+router.get(
+    "/:id",
+    authenticateUser,
+    checkRole("Admin"),
+    getUserById
+);
+
+router.put(
+    "/:id",
+    authenticateUser,
+    checkRole("Admin"),
+    updateUser
+);
+
+router.delete(
+    "/:id",
+    authenticateUser,
+    checkRole("Admin"),
+    deleteUser
+);
 
 module.exports = router;

@@ -15,13 +15,19 @@ const userSchema = new mongoose.Schema(
 
     password: {
         type: String,
-        required: true
+        required: true,
+        select: false
     },
 
     role: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Role",
         required: true
+    },
+
+    isActive: {
+        type: Boolean,
+        default: true
     }
 },
 {
